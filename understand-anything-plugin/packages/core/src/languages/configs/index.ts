@@ -7,6 +7,7 @@ import { rustConfig } from "./rust.js";
 import { javaConfig } from "./java.js";
 import { rubyConfig } from "./ruby.js";
 import { phpConfig } from "./php.js";
+import { juliaConfig } from "./julia.js";
 import { swiftConfig } from "./swift.js";
 import { kotlinConfig } from "./kotlin.js";
 import { cConfig } from "./c.js";
@@ -51,6 +52,7 @@ export const builtinLanguageConfigs: LanguageConfig[] = [
   javaConfig,
   rubyConfig,
   phpConfig,
+  juliaConfig,
   swiftConfig,
   kotlinConfig,
   luaConfig,
@@ -96,6 +98,7 @@ export {
   javaConfig,
   rubyConfig,
   phpConfig,
+  juliaConfig,
   swiftConfig,
   kotlinConfig,
   luaConfig,

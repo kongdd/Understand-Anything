@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { TreeSitterPlugin } from "./tree-sitter-plugin.js";
+import { juliaConfig } from "../languages/configs/julia.js";
 
 describe("TreeSitterPlugin", () => {
   let plugin: TreeSitterPlugin;
@@ -302,6 +303,52 @@ function main() {
     it("should support typescript and javascript", () => {
       expect(plugin.languages).toContain("typescript");
       expect(plugin.languages).toContain("javascript");
+    });
+  });
+
+  describe("Julia support", () => {
+    it("should extract Julia functions, imports, exports, and call graph when configured", async () => {
+      const juliaPlugin = new TreeSitterPlugin([juliaConfig]);
+      await juliaPlugin.init();
+
+      const code = `
+module Demo
+
+using LinearAlgebra
+import Base: show
+export greet
+
+include("helpers.jl")
+
+struct Greeter
+    name::String
+end
+
+function greet(person, times::Int)::String
+    message = format_message(person)
+    return message
+end
+
+format_message(person) = helper(person)
+
+end
+`;
+
+      const analysis = juliaPlugin.analyzeFile("demo.jl", code);
+      expect(analysis.functions.map((fn) => fn.name)).toContain("greet");
+      expect(analysis.functions.map((fn) => fn.name)).toContain("format_message");
+      expect(analysis.classes.map((cls) => cls.name)).toContain("Demo");
+      expect(analysis.classes.map((cls) => cls.name)).toContain("Greeter");
+      expect(analysis.imports.some((imp) => imp.source === "LinearAlgebra")).toBe(true);
+      expect(analysis.imports.some((imp) => imp.source === "Base")).toBe(true);
+      expect(analysis.imports.some((imp) => imp.source === "helpers.jl")).toBe(true);
+      expect(analysis.exports.some((exp) => exp.name === "greet")).toBe(true);
+
+      const calls = juliaPlugin.extractCallGraph!("demo.jl", code);
+      expect(calls.some((entry) => entry.caller === "greet" && entry.callee === "format_message")).toBe(true);
+      expect(calls.some((entry) => entry.caller === "format_message" && entry.callee === "helper")).toBe(true);
+      expect(calls.some((entry) => entry.caller === "greet" && entry.callee === "greet")).toBe(false);
+      expect(calls.some((entry) => entry.caller === "format_message" && entry.callee === "format_message")).toBe(false);
     });
   });
 });

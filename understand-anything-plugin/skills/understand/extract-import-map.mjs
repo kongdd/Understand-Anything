@@ -1297,6 +1297,29 @@ export function resolveCppImport(rawImport, file, ctx) {
   return [];
 }
 
+export function resolveJuliaImport(rawImport, file, ctx) {
+  if (!rawImport || typeof rawImport !== 'string') return [];
+  const src = toPosix(rawImport.trim());
+  if (!src) return [];
+
+  const importerDir = dirOf(toPosix(file.path));
+  const normalizedModulePath = src.replace(/\./g, '/');
+  const candidates = [
+    resolveRelative(importerDir, src),
+    resolveRelative(importerDir, `${src}.jl`),
+    resolveRelative(importerDir, normalizedModulePath),
+    resolveRelative(importerDir, `${normalizedModulePath}.jl`),
+    `${normalizedModulePath}.jl`,
+    normalizedModulePath,
+  ];
+
+  for (const candidate of candidates) {
+    if (candidate && ctx.fileSet.has(candidate)) return [candidate];
+  }
+
+  return [];
+}
+
 // ---------------------------------------------------------------------------
 // Dispatcher
 // ---------------------------------------------------------------------------
@@ -1349,6 +1372,9 @@ function resolveImport(imp, file, ctx) {
   }
   if (lang === 'c' || lang === 'cpp') {
     return resolveCppImport(src, file, ctx);
+  }
+  if (lang === 'julia') {
+    return resolveJuliaImport(src, file, ctx);
   }
   // Ruby is handled via a dedicated pathway because its tree-sitter
   // extractor flattens require vs require_relative into a single field,

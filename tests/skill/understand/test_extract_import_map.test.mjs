@@ -513,6 +513,59 @@ describe('extract-import-map.mjs — Python resolver', () => {
   });
 });
 
+describe('extract-import-map.mjs — Julia resolver', () => {
+  let projectRoot;
+
+  afterEach(() => {
+    if (projectRoot) {
+      rmSync(projectRoot, { recursive: true, force: true });
+      projectRoot = null;
+    }
+  });
+
+  it('resolves Julia include calls to sibling files', () => {
+    projectRoot = setupTree({
+      'src/main.jl': 'module Demo\ninclude("helper.jl")\nend\n',
+      'src/helper.jl': 'helper() = 1\n',
+    });
+
+    const result = runScript(projectRoot, {
+      projectRoot,
+      files: [
+        { path: 'src/main.jl', language: 'julia', fileCategory: 'code' },
+        { path: 'src/helper.jl', language: 'julia', fileCategory: 'code' },
+      ],
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.output.importMap['src/main.jl']).toEqual(['src/helper.jl']);
+    expect(result.output.importMap['src/helper.jl']).toEqual([]);
+  });
+
+  it('resolves Julia dotted module imports to project files', () => {
+    projectRoot = setupTree({
+      'src/main.jl': 'module Demo\nusing Foo.Bar\nimport Foo.Baz\nend\n',
+      'src/Foo/Bar.jl': 'module Bar\nend\n',
+      'src/Foo/Baz.jl': 'module Baz\nend\n',
+    });
+
+    const result = runScript(projectRoot, {
+      projectRoot,
+      files: [
+        { path: 'src/main.jl', language: 'julia', fileCategory: 'code' },
+        { path: 'src/Foo/Bar.jl', language: 'julia', fileCategory: 'code' },
+        { path: 'src/Foo/Baz.jl', language: 'julia', fileCategory: 'code' },
+      ],
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.output.importMap['src/main.jl']).toEqual([
+      'src/Foo/Bar.jl',
+      'src/Foo/Baz.jl',
+    ]);
+  });
+});
+
 describe('extract-import-map.mjs — Go resolver', () => {
   let projectRoot;
 

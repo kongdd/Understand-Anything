@@ -142,6 +142,18 @@ describe('scan-project.mjs — language detection', () => {
     expect(byPath(r.output, 'f.cs').language).toBe('csharp');
   });
 
+  it('maps Julia files to the julia language id', () => {
+    projectRoot = setupTree({
+      'src/main.jl': 'module Demo\ninclude("helper.jl")\nend\n',
+      'src/helper.jl': 'helper() = 1\n',
+    });
+
+    const r = runScript(projectRoot);
+    expect(r.status).toBe(0);
+    expect(byPath(r.output, 'src/main.jl').language).toBe('julia');
+    expect(byPath(r.output, 'src/helper.jl').language).toBe('julia');
+  });
+
   it('maps Ruby, PHP, C, C++ to their language ids', () => {
     projectRoot = setupTree({
       'a.rb': 'puts 1\n',
@@ -254,6 +266,16 @@ describe('scan-project.mjs — category assignment (project-scanner.md Step 4)',
     expect(byPath(r.output, 'src/b.py').fileCategory).toBe('code');
     expect(byPath(r.output, 'src/c.go').fileCategory).toBe('code');
     expect(byPath(r.output, 'src/d.rs').fileCategory).toBe('code');
+  });
+
+  it('assigns Julia source files to the code category', () => {
+    projectRoot = setupTree({
+      'src/main.jl': 'module Demo\nend\n',
+    });
+
+    const r = runScript(projectRoot);
+    expect(r.status).toBe(0);
+    expect(byPath(r.output, 'src/main.jl').fileCategory).toBe('code');
   });
 
   it('assigns config to JSON/YAML/TOML/INI/XML', () => {

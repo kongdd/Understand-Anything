@@ -51,11 +51,12 @@ describe("PluginRegistry", () => {
 
   it("maps common extensions to languages", () => {
     const registry = new PluginRegistry();
-    const plugin = createMockPlugin("multi", ["python", "go", "rust"]);
+    const plugin = createMockPlugin("multi", ["python", "go", "rust", "julia"]);
     registry.register(plugin);
     expect(registry.getPluginForFile("main.py")).toBe(plugin);
     expect(registry.getPluginForFile("main.go")).toBe(plugin);
     expect(registry.getPluginForFile("main.rs")).toBe(plugin);
+    expect(registry.getPluginForFile("main.jl")).toBe(plugin);
   });
 
   it("lists all registered plugins", () => {

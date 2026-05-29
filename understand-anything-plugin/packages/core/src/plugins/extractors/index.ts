@@ -7,6 +7,7 @@ export { RustExtractor } from "./rust-extractor.js";
 export { JavaExtractor } from "./java-extractor.js";
 export { RubyExtractor } from "./ruby-extractor.js";
 export { PhpExtractor } from "./php-extractor.js";
+export { JuliaExtractor } from "./julia-extractor.js";
 export { CppExtractor } from "./cpp-extractor.js";
 export { CSharpExtractor } from "./csharp-extractor.js";
 
@@ -18,6 +19,7 @@ import { RustExtractor } from "./rust-extractor.js";
 import { JavaExtractor } from "./java-extractor.js";
 import { RubyExtractor } from "./ruby-extractor.js";
 import { PhpExtractor } from "./php-extractor.js";
+import { JuliaExtractor } from "./julia-extractor.js";
 import { CppExtractor } from "./cpp-extractor.js";
 import { CSharpExtractor } from "./csharp-extractor.js";
 
@@ -29,6 +31,7 @@ export const builtinExtractors: LanguageExtractor[] = [
   new JavaExtractor(),
   new RubyExtractor(),
   new PhpExtractor(),
+  new JuliaExtractor(),
   new CppExtractor(),
   new CSharpExtractor(),
 ];

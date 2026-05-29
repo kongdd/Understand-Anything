@@ -3,6 +3,7 @@ import { LanguageRegistry } from "../languages/language-registry.js";
 import { StrictLanguageConfigSchema } from "../languages/types.js";
 import { typescriptConfig } from "../languages/configs/typescript.js";
 import { pythonConfig } from "../languages/configs/python.js";
+import { juliaConfig } from "../languages/configs/julia.js";
 
 describe("LanguageRegistry", () => {
   it("registers and retrieves a language config by id", () => {
@@ -42,17 +43,19 @@ describe("LanguageRegistry", () => {
     const registry = new LanguageRegistry();
     registry.register(typescriptConfig);
     registry.register(pythonConfig);
+    registry.register(juliaConfig);
     const all = registry.getAllLanguages();
-    expect(all).toHaveLength(2);
+    expect(all).toHaveLength(3);
     expect(all.map(c => c.id)).toContain("typescript");
     expect(all.map(c => c.id)).toContain("python");
+    expect(all.map(c => c.id)).toContain("julia");
   });
 
   describe("createDefault", () => {
-    it("registers all 40 built-in language configs", () => {
+    it("registers all 41 built-in language configs", () => {
       const registry = LanguageRegistry.createDefault();
       const all = registry.getAllLanguages();
-      expect(all.length).toBe(40);
+      expect(all.length).toBe(41);
     });
 
     it("maps all expected extensions", () => {
@@ -71,6 +74,7 @@ describe("LanguageRegistry", () => {
       expect(registry.getByExtension(".c")?.id).toBe("c");
       expect(registry.getByExtension(".h")?.id).toBe("c");
       expect(registry.getByExtension(".lua")?.id).toBe("lua");
+      expect(registry.getByExtension(".jl")?.id).toBe("julia");
       expect(registry.getByExtension(".js")?.id).toBe("javascript");
     });
 
